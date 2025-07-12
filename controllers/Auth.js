@@ -1,6 +1,7 @@
  const User = require ("../models/User");
  const OTP = require ("../models/OTP");
  const otpGenerator = require ("otp-generator");
+const User = require("../models/User");
  // Send OTP Function
 
  exports.sendOTP = async (req , res) =>{
@@ -65,5 +66,89 @@
  };
 
  //SIGN UP Function
+
+ exports.signUp = async (req, res) => {
+
+    const {firstName,
+    lastName,
+    email,
+    password, 
+    confirmPassword,
+    accountType,
+    contactNumber, 
+    otp} = req.body;
+
+        // Validate Data
+    if(!firstName || !lastName || !email || !password || !confirmPassword || !otp){
+    return res.status(403).json({
+        success : false,
+        message : "All fields are required",
+    })
+ }
+
+ // Match 2 Passwords
+
+    if (password !== confirmPassword){
+        return res.status(400).json({
+        success : false,
+        message : "password and confirm password donot match, please try again",
+    })
+ 
+    }
+    // Check user already exist
+    const existingUser = await User.findOne({email});
+    if (existingUser){
+        return res.status(400).json({
+        success : false,
+        message : "User is already registered",
+        });
+    }
+
+    // Find most recent otp stored for user
+    const recentOtp = await OTP.findOne({email}).sort({createdAt:-1}).limit(1);
+    console.log(recentOtp);
+
+    if(recentOtp.length == 0){
+        return res.status(400).json({
+        success : false,
+        message : "OTP found",
+    })
+}
+    else if(otp !== recentOtp.otp){
+        return res.status(400).json({
+        success : false,
+        message : "Invalid OTP",
+    })
+    }
+
+    // Hash Password
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    // Entry create in DB
+    const profileDetail = await Profile.create({
+            gender : null,
+            dateOfBirth : null,
+            about : null,
+            contactNumber : null,
+
+    })
+
+    const User = await User.create({
+        firstName,
+        lastName,
+        email,
+        password:hashedPassword, 
+        
+        accountType,
+         additionalDetails:profileDetails._id,
+         image : `https://api.dicebar.com/5.x/initials/svg?seed=${firstname} ${lastname}`,
+    })
+ };
+
+ 
+ 
+
+
+
 
  
