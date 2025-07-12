@@ -2,6 +2,10 @@
  const OTP = require ("../models/OTP");
  const otpGenerator = require ("otp-generator");
 const User = require("../models/User");
+const bcrypt = require ('bcrypt');
+
+
+
  // Send OTP Function
 
  exports.sendOTP = async (req , res) =>{
@@ -69,7 +73,8 @@ const User = require("../models/User");
 
  exports.signUp = async (req, res) => {
 
-    const {firstName,
+   try {
+         const {firstName,
     lastName,
     email,
     password, 
@@ -143,8 +148,77 @@ const User = require("../models/User");
          additionalDetails:profileDetails._id,
          image : `https://api.dicebar.com/5.x/initials/svg?seed=${firstname} ${lastname}`,
     })
+
+    // return Response
+
+    return res.status(200).json({
+        success : true,
+        message : 'User registered Successfully',
+        User,
+    })
+   }
+   catch (error){
+    console.log(error);
+    return res.status(500).json({
+        success : false,
+        message : "User cannot be registered, Please try again",
+    })
+
+   }
  };
 
+ exports.login = async (req, res) => {
+    try{
+        // Get data from req body
+        const User = {email, password} = req.body;
+
+        //Data Valodation
+        if(!email || !password){
+            return res.status(403).json({
+                success : false,
+                message : 'All fields are required',
+            })
+        }
+
+        // check user exist or not
+        const user = await User.findOne({email}).populate({additionalDetails});
+        if(!user){
+            return res.status(401).json({
+                success : false,
+                message : "User is not registered , Please signup"
+            })
+
+        }
+        if(await bcrypt.compare(password, user.password)){
+            const payload = {
+                email : user.email,
+                id : user._id,
+                role : user.role,
+
+            }
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expires : "2h",
+            });
+            user.token = token;
+            user.password = undefined;
+        }
+            //create cookies and send response
+            const options = {
+                expires : new Date (Date.now() + 3*24*60*60*1000),
+                httpOnly : true,
+            }
+            res.cookie("token", token , options).status(200).json({
+                success : true,
+                token, 
+                user,
+                message : "Logged in successfully",
+            })
+
+    }
+    catch (error){
+
+    }
+ }
  
  
 
