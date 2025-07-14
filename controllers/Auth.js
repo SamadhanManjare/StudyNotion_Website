@@ -189,7 +189,7 @@ const bcrypt = require ('bcrypt');
             })
 
         }
-        if(await bcrypt.compare(password, user.password)){
+        if (await bcrypt.compare(password, user.password)){
             const payload = {
                 email : user.email,
                 id : user._id,
@@ -201,8 +201,8 @@ const bcrypt = require ('bcrypt');
             });
             user.token = token;
             user.password = undefined;
-        }
-            //create cookies and send response
+
+                //create cookies and send response
             const options = {
                 expires : new Date (Date.now() + 3*24*60*60*1000),
                 httpOnly : true,
@@ -213,11 +213,30 @@ const bcrypt = require ('bcrypt');
                 user,
                 message : "Logged in successfully",
             })
+        }
+        else{
+            return res.status(401).json({
+                success : false,
+                message : "password incorrect"
+            })
+        }
+            
+            
 
     }
     catch (error){
-
+        console.log(error)
+        return res.status(500).json({
+            success : false,
+            message : "Login Failure, Please try again"
+        })
     }
+ };
+
+ // Change Password
+
+ exports.changePassword = async (req,res) => {
+    //
  }
  
  
