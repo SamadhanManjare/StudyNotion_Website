@@ -26,7 +26,7 @@
          catch(error){
                return res.status(401).json({
                   success : false,
-                  message : "toke invalid",
+                  message : "token invalid",
                }) 
          }
          next();
@@ -37,4 +37,43 @@
          message : "something went wrong while validating the token"
         })
     }
+ }
+
+ ///
+
+ exports.isStudent = async (req, res, next) => {
+      try{
+            if(req.User.accountType !== "Student"){
+               return res.status(401).json({
+                  success : false,
+                  message : "This is a protected route for Student only"
+               })
+            }
+            next();
+      }
+      catch(error){
+            return res.status(500).json({
+               success : false,
+               message :"User role cannot be verified , Pleae try again"
+            })
+      }
+ }
+
+
+ exports.isStudent = async (req, res, next) => {
+      try{
+            if(req.User.accountType !== "Instructor"){
+               return res.status(401).json({
+                  success : false,
+                  message : "This is a protected route for Instructor only"
+               })
+            }
+            next();
+      }
+      catch(error){
+            return res.status(500).json({
+               success : false,
+               message :"User role cannot be verified , Pleae try again"
+            })
+      }
  }
