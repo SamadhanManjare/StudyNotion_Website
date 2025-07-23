@@ -38,6 +38,52 @@
     }
     catch(error){
 
+        return res.status(500).json({
+            success : false,
+            error : error.message,
+        })
+    }
+    
+ }
+
+ // delete account
+
+ exports.deleteAccount = async (req, res) => {
+
+    try{
+        //get id
+        const id = req.user.id;
+
+        //validation
+        const userDetails = await user.findById(id);
+        if(!userDetails){
+            return res.status(404).json({
+                success : false,
+                message : "User not found",
+            })
+        }
+
+        //delete profile
+        await Profile.findByIdandDelete({_id:userDetails.additionalDetails});
+
+        //delete user
+        await user.findByIdandDelete({_id : id});
+
+        //unenroll user from all unenrolled courses
+
+        //return response
+        return res.status(200).json({
+            success : true,
+            message : "Account deleted successfully",
+        })
+
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).json({
+            success : false,
+            error : error.message,
+        })
 
     }
     
