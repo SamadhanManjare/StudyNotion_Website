@@ -82,7 +82,32 @@
         console.log(error);
         return res.status(500).json({
             success : false,
-            error : error.message,
+            message : "User cannot be deleted successfully",
+        })
+
+    }
+    
+ }
+
+ exports.getAllUserDetails = async (req, res) => {
+
+    try{
+
+        const id = get.user.id;
+
+        //validation and get all user details
+        const userDetails = await user.findByID(id).populate("additionalDetails").exec();
+
+        //return response
+        return res.status(500).json({
+            success : true,
+            message : "User data fetched successfully",
+        })
+    }
+    catch(error){
+        return res.status(500).json({
+            success : false,
+            message : error.message,
         })
 
     }
