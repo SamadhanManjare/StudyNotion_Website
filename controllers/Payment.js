@@ -49,7 +49,7 @@ const {instance} = require ("../config/razorpay");
         })
     }
 
-    //order create
+    //order create successfully
     const amount = course.price;
     const currency = "INR";
 
