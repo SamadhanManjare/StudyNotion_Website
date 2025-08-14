@@ -69,6 +69,7 @@ const {instance} = require ("../config/razorpay");
         console.log(paymentResponse);
 
         //return response
+        //return response updated after   
         return res.status(200).json({
             success : true,
             courseName : course.courseName,
