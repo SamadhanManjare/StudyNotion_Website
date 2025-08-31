@@ -95,4 +95,16 @@ const {instance} = require ("../config/razorpay");
  //be updated in payment.js
  
  // Some update in payment.js
- 
+    exports.verifySignature = async (req, res) => {
+
+        try{
+
+        }
+        catch(error){
+            console.log(error);
+            return res.status(500).json({
+                success : false,
+                message : error.message,
+            })
+        }
+    }
