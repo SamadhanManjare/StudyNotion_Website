@@ -97,14 +97,70 @@ const {instance} = require ("../config/razorpay");
  // Some update in payment.js
     exports.verifySignature = async (req, res) => {
 
-        try{
+        const webhooksecret = "1234567890";
+        const signature = req.headers["x-razorpay-signature"];
 
-        }
-        catch(error){
+        const shasum = crypto.createHmac("sha256", webhooksecret);
+        shasum.update(JSON.stringify(req.body));
+        const digest = shasum.digest("hex");
+
+        if (digest === signature) {
+           console.log("Valid signature");
+
+           const { courseId, userId } = req.body.payload.payment.entity.notes;
+
+           try{
+            //fulfill the order
+
+            // find the course and enroll the student in it
+            const enrolledCourse = await Course.findByIdAndUpdate(
+                {_id : courseId},
+                {$push : {studentsEnrolled : userId}},
+                {new : true},);
+
+                if(!enrolledCourse){
+                    return res.status(500).json({
+                        success : false,
+                        message : "Could not enroll the student"
+                    });
+                }
+                console.log(enrolledCourse);
+
+            // find the student and add the course to their list enrolled course me
+            const enrolledStudent = await user.findByIdAndUpdate(
+                {_id : userId},
+                {$push : {courses : courseId}},
+                {new : true},);
+
+                console.log(enrolledStudent);
+                
+
+                //send mail for enrollment confirmation
+                const emailResponse = await mailSender(
+                    enrolledStudent.email,
+                    "Congratulations on enrolling in the course!",
+                    "Course Enrollment Confirmation"
+                );
+
+                console.log(emailResponse);
+                return res.status(200).json({
+                    success : true,
+                    message : "Signature verified and student enrolled successfully",
+                });
+
+           }
+           catch(error){
             console.log(error);
             return res.status(500).json({
                 success : false,
-                message : error.message,
-            })
+                message : error.message
+            });       
         }
+
+        
     }
+    else{
+        
+
+    }
+}
