@@ -160,7 +160,9 @@ const {instance} = require ("../config/razorpay");
         
     }
     else{
-        
-
+        return res.status(400).json({
+            success : false,
+            message : "Invalid request"
+        });
     }
 }
