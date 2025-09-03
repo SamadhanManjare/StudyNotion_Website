@@ -181,6 +181,7 @@ const bcrypt = require ('bcrypt');
         }
 
         // check user exist or not
+        // checked that user is not null
         const user = await User.findOne({email}).populate({additionalDetails});
         if(!user){
             return res.status(401).json({
