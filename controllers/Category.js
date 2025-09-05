@@ -65,6 +65,7 @@ exports.categoryPageDetails = async (req,res) => {
             });
         }
         // get courses for the specified category
+        //get different categories
         const differentCategories = await category.find({
             
             _id : {$ne : categoryId},
